@@ -5,7 +5,7 @@ import { AlertCircle, FilePlus2, Search } from "lucide-react";
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { TemporaryEstimateCard } from '@/components/dashboard/temporary-estimate-card';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 
 
@@ -34,34 +34,31 @@ export default async function DashboardPage() {
             <p className="text-muted-foreground">Aquí tienes un resumen de tu actividad reciente y acciones rápidas.</p>
         </div>
         
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Crear Presupuesto</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Button asChild size="lg" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-                        <Link href="/estimates/new">
-                        <FilePlus2 className="mr-2 h-5 w-5" />
-                        Crear Nuevo Presupuesto
-                        </Link>
-                    </Button>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Buscar Presupuesto</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex w-full max-w-sm items-center space-x-2">
-                        <Input type="text" placeholder="Número de Cédula" />
-                        <Button type="submit" size="icon">
-                            <Search className="h-4 w-4" />
+        <div className="grid gap-6 lg:grid-cols-3">
+            <TemporaryEstimateCard company={company} className="lg:col-span-2" />
+            
+            <div className="space-y-6">
+                <Card>
+                    <CardContent className="p-4 flex items-center justify-center">
+                        <Button asChild size="lg" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+                            <Link href="/estimates/new">
+                                <FilePlus2 className="mr-2 h-5 w-5" />
+                                Crear Nuevo Presupuesto
+                            </Link>
                         </Button>
-                    </div>
-                </CardContent>
-            </Card>
-            <TemporaryEstimateCard company={company} />
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardContent className="p-4 flex items-center justify-center">
+                         <div className="flex w-full max-w-sm items-center space-x-2">
+                            <Input type="text" placeholder="Buscar por Cédula..." />
+                            <Button type="submit" size="icon" aria-label="Buscar">
+                                <Search className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
         </div>
 
         <RecentEstimates estimates={estimates.slice(0, 5)} />
