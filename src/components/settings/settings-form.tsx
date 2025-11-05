@@ -19,9 +19,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import type { Company } from '@/lib/types';
 import { updateCompanyAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
-import { useTransition, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { useTransition, useState, useCallback } from 'react';
+import { Loader2, UploadCloud } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useDropzone } from 'react-dropzone';
 
 const companySchema = z.object({
   name: z.string().min(1, 'El nombre de la empresa es requerido.'),
@@ -52,18 +53,24 @@ export function SettingsForm({ company }: { company: Company }) {
     },
   });
 
-  const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
         setLogoPreview(result);
-        form.setValue('logoUrl', result);
+        form.setValue('logoUrl', result, { shouldValidate: true });
       };
       reader.readAsDataURL(file);
     }
-  };
+  }, [form]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { 'image/jpeg': [], 'image/png': [] },
+    multiple: false,
+  });
 
   const onSubmit = async (data: z.infer<typeof companySchema>) => {
     startTransition(async () => {
@@ -163,11 +170,23 @@ export function SettingsForm({ company }: { company: Company }) {
             />
              <div className="md:col-span-2">
               <FormLabel>Logotipo de la Empresa</FormLabel>
-              <div className="flex items-center gap-4 mt-2">
-                {logoPreview && <img src={logoPreview} alt="Vista previa del logo" className="h-16 w-16 rounded-lg object-contain border p-1" />}
-                <Input id="logoUpload" type="file" accept="image/png, image/jpeg" onChange={handleLogoChange} className="flex-1" />
+              <div
+                {...getRootProps()}
+                className={`mt-2 flex justify-center items-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer
+                ${isDragActive ? 'border-primary bg-primary/10' : 'border-input hover:border-primary/50'}`}
+              >
+                <input {...getInputProps()} />
+                {logoPreview ? (
+                  <img src={logoPreview} alt="Vista previa del logo" className="h-full w-full object-contain p-2" />
+                ) : (
+                  <div className="text-center text-muted-foreground">
+                    <UploadCloud className="mx-auto h-10 w-10 mb-2" />
+                    <p>Arrastra y suelta una imagen aquí, o haz clic para seleccionar</p>
+                    <p className="text-xs">PNG o JPG (máx. 800x400px)</p>
+                  </div>
+                )}
               </div>
-              <FormDescription className="mt-2">Sube el logotipo de tu empresa (se recomienda formato PNG o JPG).</FormDescription>
+              <FormMessage>{form.formState.errors.logoUrl?.message}</FormMessage>
             </div>
             <div className="md:col-span-2">
               <FormField

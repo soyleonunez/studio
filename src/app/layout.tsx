@@ -5,6 +5,7 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { AppHeader } from '@/components/app-header';
 import { Toaster } from "@/components/ui/toaster"
+import { getCompany } from '@/lib/data';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -13,11 +14,13 @@ export const metadata: Metadata = {
   description: 'Generate beautiful estimates for your veterinary practice.',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const company = await getCompany();
+
   return (
     <html lang="en" className={`${inter.variable} h-full`}>
       <head>
@@ -28,7 +31,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased h-full bg-background">
         <SidebarProvider>
-          <AppSidebar />
+          <AppSidebar logoUrl={company?.logoUrl} />
           <SidebarInset>
             <AppHeader />
             <main className="flex-1 p-4 sm:px-6 sm:py-0">

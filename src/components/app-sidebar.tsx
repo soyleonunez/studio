@@ -14,15 +14,15 @@ import {
 import { Logo } from '@/components/logo';
 import { LayoutDashboard, Settings, LifeBuoy } from 'lucide-react';
 
-export function AppSidebar() {
+export function AppSidebar({ logoUrl }: { logoUrl?: string | null }) {
   const pathname = usePathname();
 
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center justify-between">
-            <Logo />
-            <div className="rounded-full h-8 w-8 flex items-center justify-center bg-background border group-data-[state=collapsed]/sidebar-wrapper:hidden">
+            <Logo logoUrl={logoUrl} />
+            <div className="rounded-full h-8 w-8 flex items-center justify-center bg-background border group-data-[state=collapsed]/sidebar-wrapper:hidden ml-2">
                 <SidebarTrigger className="hidden sm:flex" />
             </div>
         </div>
