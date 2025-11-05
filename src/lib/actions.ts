@@ -19,6 +19,7 @@ const companySchema = z.object({
 export async function updateCompanyAction(
   data: unknown
 ) {
+  const wasCompanyDataMissing = !(await getCompany())?.name;
   const validatedFields = companySchema.safeParse(data);
 
   if (!validatedFields.success) {
@@ -30,8 +31,6 @@ export async function updateCompanyAction(
   }
 
   try {
-    const wasCompanyDataMissing = !(await getCompany())?.name;
-    
     await dbUpdateCompany(validatedFields.data as Company);
 
     revalidatePath('/', 'layout');
