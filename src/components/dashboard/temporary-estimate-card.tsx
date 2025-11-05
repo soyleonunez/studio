@@ -67,7 +67,7 @@ export function TemporaryEstimateCard({ company, className }: { company: Company
     return (
         <Card className={cn("w-full flex flex-col", className)}>
             <CardHeader>
-                <CardTitle>Presupuesto Rápido</CardTitle>
+                <CardTitle>Presupuesto</CardTitle>
                 <CardDescription>Crea un presupuesto temporal sin guardar datos.</CardDescription>
             </CardHeader>
             <CardContent className="flex-1">
@@ -123,7 +123,7 @@ export function TemporaryEstimateCard({ company, className }: { company: Company
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-4xl">
                         <DialogHeader>
-                            <DialogTitle>Vista Previa de Presupuesto Rápido</DialogTitle>
+                            <DialogTitle>Vista Previa de Presupuesto</DialogTitle>
                         </DialogHeader>
                         <TemporaryEstimatePreview estimateData={formData} company={company} />
                     </DialogContent>

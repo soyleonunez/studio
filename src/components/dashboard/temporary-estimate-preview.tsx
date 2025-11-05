@@ -34,7 +34,7 @@ export function TemporaryEstimatePreview({ estimateData, company }: { estimateDa
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
                 pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                pdf.save(`presupuesto-rapido-${today.toISOString().split('T')[0]}.pdf`);
+                pdf.save(`presupuesto-${today.toISOString().split('T')[0]}.pdf`);
             });
         }
     }
@@ -65,7 +65,7 @@ export function TemporaryEstimatePreview({ estimateData, company }: { estimateDa
                         </div>
                     </div>
                     <div className="text-right">
-                        <h3 className="text-2xl font-semibold uppercase text-gray-800">Presupuesto Rápido</h3>
+                        <h3 className="text-2xl font-semibold uppercase text-gray-800">Presupuesto</h3>
                         <p className="text-sm text-gray-500">Fecha: {today.toLocaleDateString('es-ES')}</p>
                     </div>
                 </div>
@@ -113,7 +113,7 @@ export function TemporaryEstimatePreview({ estimateData, company }: { estimateDa
                     </div>
                 </div>
 
-                <div className="mt-12 pt-6 border-t">
+                <div className="mt-12 pt-6 border-t text-center">
                     <p className="text-sm font-bold text-gray-800 mb-2">¡Gracias por su confianza!</p>
                     <p className="text-xs text-gray-500">{company.disclaimer}</p>
                 </div>
