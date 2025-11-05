@@ -1,13 +1,13 @@
 import { RecentEstimates } from '@/components/dashboard/recent-estimates';
 import { getEstimates, getCompany } from '@/lib/data';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, FilePlus2, Search } from "lucide-react";
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { TemporaryEstimateCard } from '@/components/dashboard/temporary-estimate-card';
-import { DailyServicesChart } from '@/components/dashboard/daily-services-chart';
-import { Card, CardContent } from '@/components/ui/card';
+import { DailyAdminMetricsCard } from '@/components/dashboard/daily-admin-metrics-card';
 import { Input } from '@/components/ui/input';
+import { QuickActions } from '@/components/dashboard/quick-actions';
+import { MagnifierIcon } from '@/components/icons/phosphor';
 
 export default async function DashboardPage() {
   const [estimates, company] = await Promise.all([getEstimates(), getCompany()]);
@@ -27,41 +27,51 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
-        <div className='space-y-2'>
-            <h1 className="text-3xl font-bold tracking-tight">Panel de Control</h1>
-            <p className="text-muted-foreground">Aquí tienes un resumen de tu actividad reciente y acciones rápidas.</p>
+    <div className="space-y-10 pb-12">
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-8 text-white shadow-2xl">
+        <div className="pointer-events-none absolute -top-16 -right-16 h-56 w-56 rounded-full bg-primary/30 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-20 h-72 w-72 rounded-full bg-sky-500/20 blur-3xl" />
+        <div className="relative z-10 flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+          <div className="max-w-2xl space-y-4">
+            <p className="text-sm font-medium uppercase tracking-[0.2em] text-white/70">Hola, {company.name}</p>
+            <h1 className="text-4xl font-semibold tracking-tight">Panel administrativo</h1>
+            <p className="text-sm text-white/70 md:text-base">
+              Gestiona presupuestos, revisa métricas y mantén a tu equipo sincronizado desde un mismo lugar.
+            </p>
+            <div className="flex flex-wrap gap-3 pt-2">
+              <Button asChild className="rounded-full bg-white text-slate-900 hover:bg-slate-100">
+                <Link href="/estimates/new">Nuevo presupuesto</Link>
+              </Button>
+              <Button asChild variant="outline" className="rounded-full border-white/30 text-white hover:bg-white/10">
+                <Link href="/settings">Configurar empresa</Link>
+              </Button>
+            </div>
+          </div>
+          <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/10 p-6 backdrop-blur">
+            <p className="text-xs uppercase tracking-wide text-white/70">Buscar cliente o mascota</p>
+            <div className="mt-4 flex items-center gap-3 rounded-2xl border border-white/20 bg-white/5 px-4 py-3">
+              <MagnifierIcon className="h-5 w-5 text-white/70" />
+              <Input
+                type="text"
+                placeholder="Ingresa nombre o número de documento"
+                className="border-none bg-transparent text-sm text-white placeholder:text-white/60 focus-visible:ring-white/40"
+              />
+            </div>
+            <p className="mt-3 text-xs text-white/60">
+              Encuentra presupuestos recientes por datos del propietario o de su mascota.
+            </p>
+          </div>
         </div>
-        
-        <div className="grid gap-6 lg:grid-cols-3">
-            <TemporaryEstimateCard company={company} className="lg:col-span-2" />
-            <DailyServicesChart estimates={estimates} />
-        </div>
+      </section>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <Card>
-                <CardContent className="p-4 flex items-center justify-between">
-                    <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground flex-1">
-                        <Link href="/estimates/new">
-                            <FilePlus2 className="mr-2 h-5 w-5" />
-                            Crear Presupuesto
-                        </Link>
-                    </Button>
-                </CardContent>
-            </Card>
-            <Card className="lg:col-span-2">
-                <CardContent className="p-4">
-                     <div className="flex w-full items-center space-x-2">
-                        <Input type="text" placeholder="Buscar por Cédula..." className="flex-1" />
-                        <Button type="submit" size="icon" aria-label="Buscar">
-                            <Search className="h-4 w-4" />
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
+      <section className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.1fr)]">
+        <TemporaryEstimateCard company={company} />
+        <DailyAdminMetricsCard estimates={estimates} />
+      </section>
 
-        <RecentEstimates estimates={estimates.slice(0, 5)} />
+      <QuickActions />
+
+      <RecentEstimates estimates={estimates.slice(0, 8)} />
     </div>
   );
 }
