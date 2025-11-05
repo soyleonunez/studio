@@ -17,10 +17,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Company } from '@/lib/types';
-import { updateCompanyAction, generateDisclaimerAction } from '@/lib/actions';
+import { updateCompanyAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState, useTransition } from 'react';
-import { Wand2, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 const companySchema = z.object({
   name: z.string().min(1, 'Company name is required.'),
@@ -34,7 +34,6 @@ const companySchema = z.object({
 
 export function SettingsForm({ company }: { company: Company }) {
   const { toast } = useToast();
-  const [isDisclaimerLoading, startDisclaimerTransition] = useTransition();
 
   const form = useForm<z.infer<typeof companySchema>>({
     resolver: zodResolver(companySchema),
@@ -65,34 +64,6 @@ export function SettingsForm({ company }: { company: Company }) {
         });
     }
   }, [state, toast]);
-
-  const handleGenerateDisclaimer = () => {
-    startDisclaimerTransition(async () => {
-        const { name, address, taxId } = form.getValues();
-        if (!name || !address || !taxId) {
-            toast({
-                title: 'Missing Information',
-                description: 'Please fill in Company Name, Address, and Tax ID to generate a disclaimer.',
-                variant: 'destructive',
-            });
-            return;
-        }
-        const result = await generateDisclaimerAction(name, address, taxId);
-        if (result.disclaimerText) {
-            form.setValue('disclaimer', result.disclaimerText);
-            toast({
-                title: 'Disclaimer Generated',
-                description: 'The disclaimer text has been updated.',
-            });
-        } else {
-            toast({
-                title: 'Generation Failed',
-                description: result.error || 'Could not generate disclaimer text.',
-                variant: 'destructive',
-            });
-        }
-    });
-  }
 
   return (
     <Form {...form}>
@@ -192,10 +163,6 @@ export function SettingsForm({ company }: { company: Company }) {
                   <FormItem>
                     <div className="flex items-center justify-between">
                         <FormLabel>Disclaimer Text</FormLabel>
-                        <Button type="button" variant="ghost" size="sm" onClick={handleGenerateDisclaimer} disabled={isDisclaimerLoading}>
-                            {isDisclaimerLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Wand2 className="mr-2 h-4 w-4" />}
-                            Generate with AI
-                        </Button>
                     </div>
                     <FormControl>
                       <Textarea rows={5} placeholder="This estimate is valid for 30 days..." {...field} />

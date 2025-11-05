@@ -19,10 +19,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import type { Estimate } from '@/lib/types';
-import { saveEstimateAction, refineDescriptionAction } from '@/lib/actions';
+import { saveEstimateAction } from '@/lib/actions';
 import { formatCurrency } from '@/lib/utils';
-import { PlusCircle, Trash2, Wand2, Loader2, Save } from 'lucide-react';
-import { useEffect, useTransition } from 'react';
+import { PlusCircle, Trash2, Loader2, Save } from 'lucide-react';
+import { useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 const lineItemSchema = z.object({
@@ -57,7 +57,6 @@ type EstimateFormData = z.infer<typeof estimateSchema>;
 export function EstimateForm({ estimate }: { estimate?: Estimate }) {
     const { toast } = useToast();
     const [isSaving, startSavingTransition] = useTransition();
-    const [isRefining, startRefiningTransition] = useTransition();
 
     const form = useForm<EstimateFormData>({
         resolver: zodResolver(estimateSchema),
@@ -92,19 +91,6 @@ export function EstimateForm({ estimate }: { estimate?: Estimate }) {
             });
         });
     };
-
-    const handleRefineDescription = (index: number) => {
-        startRefiningTransition(async () => {
-            const lineItem = form.getValues(`lineItems.${index}`);
-            const result = await refineDescriptionAction(lineItem.service, lineItem.description);
-            if(result.refinedDescription) {
-                form.setValue(`lineItems.${index}.description`, result.refinedDescription);
-                toast({ title: 'Description Refined!'});
-            } else {
-                toast({ title: 'Error', description: result.error, variant: 'destructive'});
-            }
-        });
-    }
 
     return (
         <Form {...form}>
@@ -177,9 +163,6 @@ export function EstimateForm({ estimate }: { estimate?: Estimate }) {
                                         <div className="space-y-2">
                                             <div className="flex items-center justify-between">
                                                 <FormLabel>Description</FormLabel>
-                                                <Button type="button" variant="ghost" size="sm" onClick={() => handleRefineDescription(index)} disabled={isRefining}>
-                                                    {isRefining ? <Loader2 className="h-4 w-4 animate-spin"/> : <Wand2 className="h-4 w-4" />}
-                                                </Button>
                                             </div>
                                             <FormField control={form.control} name={`lineItems.${index}.description`} render={({ field }) => (
                                                 <FormItem className="!mt-0"><FormControl><Textarea {...field} placeholder="Detailed description of the service..."/></FormControl><FormMessage /></FormItem>

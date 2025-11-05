@@ -5,8 +5,6 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { saveEstimate as dbSaveEstimate, updateCompany as dbUpdateCompany } from '@/lib/data';
 import type { Company, Estimate } from '@/lib/types';
-import { refineEstimateDescription } from '@/ai/flows/refine-estimate-description';
-import { generateDisclaimerText } from '@/ai/flows/generate-disclaimer-text';
 
 const companySchema = z.object({
   name: z.string().min(1, 'Company name is required.'),
@@ -53,29 +51,4 @@ export async function saveEstimateAction(data: Estimate) {
   const newEstimate = await dbSaveEstimate(data);
   revalidatePath('/');
   redirect(`/estimates/${newEstimate.id}`);
-}
-
-
-export async function refineDescriptionAction(service: string, description: string) {
-    if (!service || !description) {
-        return { error: 'Service and description are required.' };
-    }
-    try {
-        const result = await refineEstimateDescription({ service, description });
-        return { refinedDescription: result.refinedDescription };
-    } catch (error) {
-        return { error: 'Failed to refine description.' };
-    }
-}
-
-export async function generateDisclaimerAction(companyName: string, companyAddress: string, taxId: string) {
-    if(!companyName || !companyAddress || !taxId) {
-        return { error: 'Company details are required to generate a disclaimer.' };
-    }
-    try {
-        const result = await generateDisclaimerText({ companyName, companyAddress, taxId });
-        return { disclaimerText: result.disclaimerText };
-    } catch(error) {
-        return { error: 'Failed to generate disclaimer.' };
-    }
 }

@@ -4,6 +4,8 @@ import type { Company, Estimate } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Download, Printer } from "lucide-react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 function calculateTotals(estimate: Estimate) {
     const subtotal = estimate.lineItems.reduce((acc, item) => acc + item.quantity * item.price, 0);
@@ -19,6 +21,21 @@ export function EstimatePreview({ estimate, company }: { estimate: Estimate, com
         window.print();
     }
 
+    const handleDownload = () => {
+        const input = document.getElementById('printable-area');
+        if (input) {
+            html2canvas(input, { scale: 2 }).then((canvas) => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'in', [3.66, 8.5]); // width, height in inches
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save(`estimate-${estimate.id}.pdf`);
+            });
+        }
+    }
+
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -28,7 +45,7 @@ export function EstimatePreview({ estimate, company }: { estimate: Estimate, com
                         <Printer className="mr-2 h-4 w-4" />
                         Print
                     </Button>
-                     <Button onClick={handlePrint}>
+                     <Button onClick={handleDownload}>
                         <Download className="mr-2 h-4 w-4" />
                         Download PDF
                     </Button>
