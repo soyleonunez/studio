@@ -5,9 +5,9 @@ import { AlertCircle, FilePlus2, Search } from "lucide-react";
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { TemporaryEstimateCard } from '@/components/dashboard/temporary-estimate-card';
+import { DailyServicesChart } from '@/components/dashboard/daily-services-chart';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-
 
 export default async function DashboardPage() {
   const [estimates, company] = await Promise.all([getEstimates(), getCompany()]);
@@ -36,29 +36,30 @@ export default async function DashboardPage() {
         
         <div className="grid gap-6 lg:grid-cols-3">
             <TemporaryEstimateCard company={company} className="lg:col-span-2" />
-            
-            <div className="space-y-6">
-                <Card>
-                    <CardContent className="p-4 flex items-center justify-between">
-                        <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground flex-1">
-                            <Link href="/estimates/new">
-                                <FilePlus2 className="mr-2 h-5 w-5" />
-                                Crear Presupuesto
-                            </Link>
+            <DailyServicesChart estimates={estimates} />
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <Card>
+                <CardContent className="p-4 flex items-center justify-between">
+                    <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground flex-1">
+                        <Link href="/estimates/new">
+                            <FilePlus2 className="mr-2 h-5 w-5" />
+                            Crear Presupuesto
+                        </Link>
+                    </Button>
+                </CardContent>
+            </Card>
+            <Card className="lg:col-span-2">
+                <CardContent className="p-4">
+                     <div className="flex w-full items-center space-x-2">
+                        <Input type="text" placeholder="Buscar por Cédula..." className="flex-1" />
+                        <Button type="submit" size="icon" aria-label="Buscar">
+                            <Search className="h-4 w-4" />
                         </Button>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="p-4">
-                         <div className="flex w-full items-center space-x-2">
-                            <Input type="text" placeholder="Buscar por Cédula..." className="flex-1" />
-                            <Button type="submit" size="icon" aria-label="Buscar">
-                                <Search className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
 
         <RecentEstimates estimates={estimates.slice(0, 5)} />
