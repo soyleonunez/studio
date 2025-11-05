@@ -38,7 +38,6 @@ export default async function DashboardPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Crear Presupuesto</CardTitle>
-                    <CardDescription>Inicia un nuevo presupuesto para un cliente.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Button asChild size="lg" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
@@ -52,7 +51,6 @@ export default async function DashboardPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Buscar Presupuesto</CardTitle>
-                    <CardDescription>Busca un presupuesto existente por número de cédula del dueño.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="flex w-full max-w-sm items-center space-x-2">
