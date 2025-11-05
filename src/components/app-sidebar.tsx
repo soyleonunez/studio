@@ -1,4 +1,3 @@
-
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -23,7 +22,7 @@ export function AppSidebar() {
       <SidebarHeader>
         <div className="flex items-center justify-between">
             <Logo />
-            <div className="rounded-full h-8 w-8 flex items-center justify-center bg-background border">
+            <div className="rounded-full h-8 w-8 flex items-center justify-center bg-background border group-data-[state=collapsed]/sidebar-wrapper:hidden">
                 <SidebarTrigger className="hidden sm:flex" />
             </div>
         </div>
