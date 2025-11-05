@@ -83,8 +83,8 @@ export function TemporaryEstimatePreview({ estimateData, company }: { estimateDa
                         <TableBody>
                             {estimateData.lineItems.map(item => (
                                 <TableRow key={item.id}>
-                                    <TableCell>
-                                        <p className="font-medium">{item.service}</p>
+                                    <TableCell className="font-medium whitespace-normal">
+                                        {item.service}
                                     </TableCell>
                                     <TableCell className="text-center">{item.quantity}</TableCell>
                                     <TableCell className="text-right">{formatCurrency(item.price)}</TableCell>
