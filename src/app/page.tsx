@@ -5,7 +5,7 @@ import { AlertCircle, FilePlus2, Search } from "lucide-react";
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { TemporaryEstimateCard } from '@/components/dashboard/temporary-estimate-card';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 
 
@@ -39,19 +39,19 @@ export default async function DashboardPage() {
             
             <div className="space-y-6">
                 <Card>
-                    <CardContent className="p-4 flex items-center justify-center">
-                        <Button asChild size="lg" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+                    <CardContent className="p-4 flex items-center justify-between">
+                        <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground flex-1">
                             <Link href="/estimates/new">
                                 <FilePlus2 className="mr-2 h-5 w-5" />
-                                Crear Nuevo Presupuesto
+                                Crear Presupuesto
                             </Link>
                         </Button>
                     </CardContent>
                 </Card>
                 <Card>
-                    <CardContent className="p-4 flex items-center justify-center">
-                         <div className="flex w-full max-w-sm items-center space-x-2">
-                            <Input type="text" placeholder="Buscar por Cédula..." />
+                    <CardContent className="p-4">
+                         <div className="flex w-full items-center space-x-2">
+                            <Input type="text" placeholder="Buscar por Cédula..." className="flex-1" />
                             <Button type="submit" size="icon" aria-label="Buscar">
                                 <Search className="h-4 w-4" />
                             </Button>
