@@ -33,8 +33,8 @@ export default async function RootLayout({
         <SidebarProvider>
           <AppSidebar logoUrl={company?.logoUrl} />
           <SidebarInset>
-            <AppHeader />
-            <main className="flex-1 p-4 sm:px-6 sm:py-0">
+            <AppHeader companyName={company?.name} />
+            <main className="flex-1 px-4 pb-8 pt-6 sm:px-8">
                 {children}
             </main>
           </SidebarInset>
