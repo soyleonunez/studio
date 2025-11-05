@@ -67,10 +67,10 @@
   body * {
     visibility: hidden;
   }
-  #printable-area, #printable-area * {
+  #printable-area, #printable-area *, #printable-area-temp, #printable-area-temp * {
     visibility: visible;
   }
-  #printable-area {
+  #printable-area, #printable-area-temp {
     position: absolute;
     left: 0;
     top: 0;

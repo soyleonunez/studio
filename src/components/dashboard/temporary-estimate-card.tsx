@@ -13,12 +13,21 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { formatCurrency } from '@/lib/utils';
-import { PlusCircle, Trash2 } from 'lucide-react';
+import { PlusCircle, Trash2, FileDown } from 'lucide-react';
 import type { Company } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { TemporaryEstimatePreview } from './temporary-estimate-preview';
+
 
 const lineItemSchema = z.object({
     id: z.string(),
@@ -32,7 +41,7 @@ const tempEstimateSchema = z.object({
   taxRate: z.coerce.number().min(0).default(0),
 });
 
-type TempEstimateFormData = z.infer<typeof tempEstimateSchema>;
+export type TempEstimateFormData = z.infer<typeof tempEstimateSchema>;
 
 export function TemporaryEstimateCard({ company, className }: { company: Company, className?: string }) {
 
@@ -49,23 +58,22 @@ export function TemporaryEstimateCard({ company, className }: { company: Company
         name: 'lineItems',
     });
     
-    const lineItems = useWatch({ control: form.control, name: 'lineItems' });
-    const taxRate = useWatch({ control: form.control, name: 'taxRate' });
+    const formData = useWatch({ control: form.control });
 
-    const subtotal = lineItems.reduce((acc, item) => acc + (item.quantity * item.price || 0), 0);
-    const taxAmount = subtotal * ((taxRate || 0) / 100);
+    const subtotal = formData.lineItems.reduce((acc, item) => acc + (item.quantity * item.price || 0), 0);
+    const taxAmount = subtotal * ((formData.taxRate || 0) / 100);
     const total = subtotal + taxAmount;
 
     return (
-        <Card className={cn("w-full", className)}>
+        <Card className={cn("w-full flex flex-col", className)}>
             <CardHeader>
                 <CardTitle>Presupuesto Rápido</CardTitle>
                 <CardDescription>Crea un presupuesto temporal sin guardar datos.</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1">
                 <Form {...form}>
-                    <form className="space-y-4">
-                        <div className="space-y-4 max-h-60 overflow-y-auto pr-2">
+                    <form className="space-y-4 h-full flex flex-col">
+                        <div className="space-y-4 max-h-48 overflow-y-auto pr-2 flex-1">
                             {fields.map((field, index) => (
                                 <div key={field.id} className="grid grid-cols-12 gap-2 items-start relative">
                                     <FormField control={form.control} name={`lineItems.${index}.service`} render={({ field }) => (
@@ -105,6 +113,22 @@ export function TemporaryEstimateCard({ company, className }: { company: Company
                     </form>
                 </Form>
             </CardContent>
+            <CardFooter>
+                 <Dialog>
+                    <DialogTrigger asChild>
+                        <Button className="w-full" disabled={!form.formState.isValid}>
+                            <FileDown className="mr-2 h-4 w-4"/>
+                            Generar PDF
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-4xl">
+                        <DialogHeader>
+                            <DialogTitle>Vista Previa de Presupuesto Rápido</DialogTitle>
+                        </DialogHeader>
+                        <TemporaryEstimatePreview estimateData={formData} company={company} />
+                    </DialogContent>
+                </Dialog>
+            </CardFooter>
         </Card>
     );
 }
