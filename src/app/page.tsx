@@ -15,7 +15,6 @@ export default async function DashboardPage() {
   if (!company || !company.name || !company.address) {
     return (
         <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
             <AlertTitle>¡Bienvenido! Empecemos</AlertTitle>
             <AlertDescription>
                 Parece que es tu primera vez aquí. Para crear y gestionar presupuestos, primero debes configurar la información de tu empresa.
