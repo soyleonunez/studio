@@ -19,7 +19,7 @@ export function AppSidebar() {
   const pathname = usePathname();
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center justify-between">
             <Logo />
@@ -44,11 +44,11 @@ export function AppSidebar() {
             <SidebarMenuButton
               asChild
               isActive={pathname === '/settings'}
-              tooltip={{ children: 'Settings' }}
+              tooltip={{ children: 'Configuración' }}
             >
               <Link href="/settings">
                 <Settings />
-                <span>Settings</span>
+                <span>Configuración</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -57,9 +57,9 @@ export function AppSidebar() {
       <SidebarFooter>
          <SidebarMenu>
             <SidebarMenuItem>
-                <SidebarMenuButton tooltip={{ children: 'Support' }}>
+                <SidebarMenuButton tooltip={{ children: 'Soporte' }}>
                     <LifeBuoy />
-                    <span>Support</span>
+                    <span>Soporte</span>
                 </SidebarMenuButton>
             </SidebarMenuItem>
          </SidebarMenu>
