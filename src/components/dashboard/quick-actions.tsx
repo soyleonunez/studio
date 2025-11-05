@@ -1,71 +1,95 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ClipboardIcon, LightningIcon, WalletIcon } from "@/components/icons/phosphor";
+import type { ComponentType, SVGProps } from "react";
+import { cn } from "@/lib/utils";
+import { ClipboardIcon, CalendarIcon, BarChartIcon, GearIcon } from "@/components/icons/phosphor";
 
-const actions = [
+type Action = {
+  id: string;
+  label: string;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
+  href?: string;
+  disabled?: boolean;
+};
+
+const actions: Action[] = [
   {
-    id: "new",
-    title: "Crear presupuesto",
-    description: "Configura un estimado rápido con los datos básicos.",
-    href: "/estimates/new",
+    id: "service",
+    label: "Crear Servicio",
     icon: ClipboardIcon,
-    tone: "from-slate-900 via-slate-800 to-slate-900",
-  },
-  {
-    id: "history",
-    title: "Ver historial",
-    description: "Consulta el estado de cada presupuesto enviado.",
-    href: "/estimates",
-    icon: WalletIcon,
-    tone: "from-indigo-500 via-indigo-400 to-indigo-600",
-  },
-  {
-    id: "services",
-    title: "Catálogo de servicios",
-    description: "Actualiza los conceptos que utilizas con mayor frecuencia.",
     href: "/settings",
-    icon: LightningIcon,
-    tone: "from-sky-500 via-cyan-400 to-sky-500",
   },
-] as const;
+  {
+    id: "calendar",
+    label: "Ver Calendario",
+    icon: CalendarIcon,
+    disabled: true,
+  },
+  {
+    id: "reports",
+    label: "Reportes",
+    icon: BarChartIcon,
+    disabled: true,
+  },
+  {
+    id: "settings",
+    label: "Configuración",
+    icon: GearIcon,
+    href: "/settings",
+  },
+];
+
+function ActionTile({ action, disabled }: { action: Action; disabled: boolean }) {
+  const Icon = action.icon;
+
+  return (
+    <div
+      className={cn(
+        "flex h-full flex-col items-center gap-4 rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm transition",
+        disabled ? "cursor-not-allowed opacity-70" : "hover:-translate-y-1 hover:shadow-lg",
+      )}
+    >
+      <span
+        className={cn(
+          "flex h-16 w-16 items-center justify-center rounded-full bg-slate-900 text-white shadow-inner transition",
+          disabled ? "" : "group-hover:scale-105 group-hover:bg-slate-800",
+        )}
+      >
+        <Icon className="h-7 w-7" />
+      </span>
+      <span className="text-sm font-semibold text-slate-700">{action.label}</span>
+      {disabled && <span className="text-xs text-slate-400">Próximamente</span>}
+    </div>
+  );
+}
 
 export function QuickActions() {
   return (
-    <Card className="rounded-3xl border border-slate-200/60 bg-white shadow-xl">
-      <CardHeader className="flex flex-col gap-2 pb-4">
-        <CardTitle className="text-xl font-semibold text-slate-900">Acciones rápidas</CardTitle>
-        <CardDescription className="text-slate-500">
-          Accede con un toque a los flujos más utilizados por tu equipo.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-3 md:grid-cols-3">
-        {actions.map((action) => {
-          const Icon = action.icon;
+    <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {actions.map((action) => {
+        if (action.href && !action.disabled) {
           return (
-            <Button
+            <Link
               key={action.id}
-              asChild
-              className="group relative flex h-full flex-col items-start gap-3 rounded-2xl border border-slate-200/60 bg-slate-50/50 px-5 py-4 text-left text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
-              variant="secondary"
+              href={action.href}
+              className="group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
             >
-              <Link href={action.href}>
-                <span className="flex items-center gap-3">
-                  <span
-                    className={`flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br ${action.tone} text-white shadow-lg`}
-                  >
-                    <Icon className="h-6 w-6" />
-                  </span>
-                  <span className="text-lg font-semibold tracking-tight">{action.title}</span>
-                </span>
-                <span className="mt-3 block text-sm text-slate-500 transition-colors group-hover:text-slate-600">
-                  {action.description}
-                </span>
-              </Link>
-            </Button>
+              <ActionTile action={action} disabled={false} />
+            </Link>
           );
-        })}
-      </CardContent>
-    </Card>
+        }
+
+        return (
+          <button
+            key={action.id}
+            type="button"
+            className="group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
+            disabled
+            aria-disabled="true"
+          >
+            <ActionTile action={action} disabled={true} />
+          </button>
+        );
+      })}
+    </section>
   );
 }

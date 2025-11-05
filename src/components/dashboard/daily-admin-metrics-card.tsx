@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Estimate } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
-import { ChartPieIcon, LightningIcon, WalletIcon } from "@/components/icons/phosphor";
-import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 function calculateEstimateTotal(estimate: Estimate) {
   const subtotal = estimate.lineItems.reduce((acc, item) => acc + item.quantity * item.price, 0);
@@ -20,6 +19,12 @@ export function DailyAdminMetricsCard({ estimates }: { estimates: Estimate[] }) 
     return date;
   }, []);
 
+  const yesterday = useMemo(() => {
+    const date = new Date(today);
+    date.setDate(date.getDate() - 1);
+    return date;
+  }, [today]);
+
   const todaysEstimates = useMemo(() => {
     return estimates.filter((estimate) => {
       const estimateDate = new Date(estimate.createdAt);
@@ -28,9 +33,29 @@ export function DailyAdminMetricsCard({ estimates }: { estimates: Estimate[] }) 
     });
   }, [estimates, today]);
 
+  const yesterdaysEstimates = useMemo(() => {
+    return estimates.filter((estimate) => {
+      const estimateDate = new Date(estimate.createdAt);
+      estimateDate.setHours(0, 0, 0, 0);
+      return estimateDate.getTime() === yesterday.getTime();
+    });
+  }, [estimates, yesterday]);
+
   const totalIncome = useMemo(() => {
     return todaysEstimates.reduce((acc, estimate) => acc + calculateEstimateTotal(estimate), 0);
   }, [todaysEstimates]);
+
+  const previousIncome = useMemo(() => {
+    return yesterdaysEstimates.reduce((acc, estimate) => acc + calculateEstimateTotal(estimate), 0);
+  }, [yesterdaysEstimates]);
+
+  const incomeDelta = totalIncome - previousIncome;
+  const incomeDeltaPercentage = previousIncome > 0 ? (incomeDelta / previousIncome) * 100 : null;
+  const deltaBadgeClass = incomeDeltaPercentage === null
+    ? 'bg-slate-100 text-slate-600'
+    : incomeDelta >= 0
+      ? 'bg-emerald-100 text-emerald-700'
+      : 'bg-rose-100 text-rose-600';
 
   const frequentServices = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -47,148 +72,125 @@ export function DailyAdminMetricsCard({ estimates }: { estimates: Estimate[] }) 
       .slice(0, 4);
   }, [todaysEstimates]);
 
-  const averageTicket = useMemo(() => {
-    if (todaysEstimates.length === 0) return 0;
-    return totalIncome / todaysEstimates.length;
-  }, [todaysEstimates.length, totalIncome]);
+  const serviceMax = frequentServices.length > 0 ? frequentServices[0].count : 1;
+  const conceptCount = todaysEstimates.reduce(
+    (acc, estimate) => acc + estimate.lineItems.reduce((total, item) => total + item.quantity, 0),
+    0,
+  );
 
-  const [activeIndex, setActiveIndex] = useState(0);
+  const averageTicket = todaysEstimates.length > 0 ? totalIncome / todaysEstimates.length : 0;
+  const uniquePatients = new Set(
+    todaysEstimates.map((estimate) => `${estimate.owner.name}-${estimate.pet.name}`),
+  ).size;
 
-  const slides = useMemo(() => {
-    const serviceMax = frequentServices.length > 0 ? frequentServices[0].count : 1;
+  const todayLabel = new Intl.DateTimeFormat('es-ES', {
+    day: '2-digit',
+    month: 'long',
+  }).format(today);
 
-    return [
-      {
-        id: "income",
-        icon: <WalletIcon className="h-6 w-6" />,
-        title: "Ingresos del día",
-        description: `${todaysEstimates.length} presupuestos emitidos`,
-        content: (
-          <div className="flex h-full flex-col justify-between">
-            <div className="space-y-2">
-              <p className="text-xs uppercase tracking-wide text-slate-500">Total proyectado</p>
-              <p className="text-4xl font-semibold text-slate-900">{formatCurrency(totalIncome)}</p>
-              <p className="text-sm text-slate-500">
-                Valores calculados con la suma de todos los presupuestos generados hoy.
-              </p>
+  return (
+    <Card className="flex h-full flex-col rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <CardHeader className="flex flex-col gap-3 pb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <CardTitle className="text-2xl font-semibold text-slate-900">Métricas del día</CardTitle>
+            <CardDescription className="text-slate-500">
+              Visualiza la actividad clave de hoy para tu equipo.
+            </CardDescription>
+          </div>
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium uppercase tracking-wide text-slate-600">
+            {todayLabel}
+          </span>
+        </div>
+      </CardHeader>
+      <CardContent className="flex-1 space-y-6">
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-5">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-sm font-medium text-slate-600">Facturación del día</span>
+              <span className={`rounded-full px-2 py-1 text-xs font-semibold ${deltaBadgeClass}`}>
+                {incomeDeltaPercentage !== null
+                  ? `${incomeDelta >= 0 ? '+' : ''}${incomeDeltaPercentage.toFixed(1)}%`
+                  : '—'}
+              </span>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl bg-slate-900/5 p-4">
-                <p className="text-xs uppercase tracking-wide text-slate-500">Ticket promedio</p>
+            <p className="mt-4 text-3xl font-semibold text-slate-900">{formatCurrency(totalIncome)}</p>
+            <p className="mt-1 text-sm text-slate-500">
+              {todaysEstimates.length > 0
+                ? `${todaysEstimates.length} presupuestos emitidos hoy.`
+                : 'Todavía no hay presupuestos emitidos hoy.'}
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border border-white/60 bg-white p-3">
+                <p className="text-xs uppercase tracking-wide text-slate-400">Ticket promedio</p>
                 <p className="text-lg font-semibold text-slate-900">{formatCurrency(averageTicket)}</p>
               </div>
-              <div className="rounded-2xl bg-slate-900/5 p-4">
-                <p className="text-xs uppercase tracking-wide text-slate-500">Conceptos emitidos</p>
+              <div className="rounded-xl border border-white/60 bg-white p-3">
+                <p className="text-xs uppercase tracking-wide text-slate-400">Conceptos emitidos</p>
+                <p className="text-lg font-semibold text-slate-900">{conceptCount}</p>
+              </div>
+            </div>
+            <p className="mt-3 text-xs text-slate-400">
+              Comparado contra {formatCurrency(previousIncome)} facturados ayer.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-5">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-sm font-medium text-slate-600">Pacientes atendidos</span>
+              <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-500">
+                {todaysEstimates.length} presupuestos
+              </span>
+            </div>
+            <p className="mt-4 text-4xl font-semibold text-slate-900">{uniquePatients}</p>
+            <p className="mt-1 text-sm text-slate-500">
+              Total de mascotas distintas registradas en los presupuestos de hoy.
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border border-white/60 bg-white p-3">
+                <p className="text-xs uppercase tracking-wide text-slate-400">Ingresos por paciente</p>
                 <p className="text-lg font-semibold text-slate-900">
-                  {todaysEstimates.reduce((acc, estimate) => acc + estimate.lineItems.length, 0)}
+                  {uniquePatients > 0 ? formatCurrency(totalIncome / uniquePatients) : formatCurrency(0)}
+                </p>
+              </div>
+              <div className="rounded-xl border border-white/60 bg-white p-3">
+                <p className="text-xs uppercase tracking-wide text-slate-400">Pendientes por aprobar</p>
+                <p className="text-lg font-semibold text-slate-900">
+                  {todaysEstimates.filter((estimate) => estimate.status !== 'Aprobado').length}
                 </p>
               </div>
             </div>
           </div>
-        ),
-      },
-      {
-        id: "services",
-        icon: <ChartPieIcon className="h-6 w-6" />,
-        title: "Servicios frecuentes",
-        description:
-          frequentServices.length > 0
-            ? "Top de conceptos incluidos en los presupuestos de hoy"
-            : "Registra un presupuesto para ver actividad",
-        content: (
-          <div className="flex h-full flex-col justify-between">
-            <div className="space-y-4">
-              {frequentServices.length === 0 && (
-                <p className="text-sm text-slate-500">
-                  Aún no hay servicios registrados hoy. ¡Crea tu primer presupuesto!
-                </p>
-              )}
-              {frequentServices.map((service) => (
+        </div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-medium text-slate-700">Servicios más cotizados</p>
+              <p className="text-xs text-slate-500">Top de conceptos incluidos en los presupuestos generados hoy.</p>
+            </div>
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+              {frequentServices.length} servicios
+            </span>
+          </div>
+          <div className="mt-4 space-y-4">
+            {frequentServices.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-6 text-sm text-slate-500">
+                Crea un presupuesto para descubrir tus servicios más solicitados.
+              </div>
+            ) : (
+              frequentServices.map((service) => (
                 <div key={service.service} className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-medium text-slate-900">{service.service}</span>
-                    <Badge variant="outline" className="rounded-full border-slate-200 px-2 py-0 text-xs font-medium">
-                      {service.count}x
-                    </Badge>
+                    <span className="text-xs font-semibold text-slate-500">{service.count} solicitudes</span>
                   </div>
-                  <div className="h-2 rounded-full bg-slate-100">
-                    <div
-                      className="h-full rounded-full bg-slate-900"
-                      style={{ width: `${Math.max((service.count / serviceMax) * 100, 10)}%` }}
-                    />
-                  </div>
+                  <Progress
+                    value={Math.max((service.count / serviceMax) * 100, 6)}
+                    className="h-2 bg-slate-100 [&>div]:bg-sky-500"
+                  />
                 </div>
-              ))}
-            </div>
-            <div className="rounded-2xl bg-slate-900/5 p-4">
-              <p className="text-xs uppercase tracking-wide text-slate-500">Servicios distintos</p>
-              <p className="text-lg font-semibold text-slate-900">{frequentServices.length}</p>
-            </div>
+              ))
+            )}
           </div>
-        ),
-      },
-    ];
-  }, [averageTicket, frequentServices, todaysEstimates, totalIncome]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % slides.length);
-    }, 6000);
-
-    return () => clearInterval(interval);
-  }, [slides.length]);
-
-  return (
-    <Card className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-xl">
-      <div className="pointer-events-none absolute -top-32 -left-16 h-64 w-64 rounded-full bg-sky-100 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-24 -right-20 h-64 w-64 rounded-full bg-indigo-100 blur-3xl" />
-      <CardHeader className="relative z-10 flex flex-row items-start justify-between gap-4 pb-4">
-        <div>
-          <CardTitle className="text-2xl font-semibold tracking-tight text-slate-900">Métricas diarias</CardTitle>
-          <CardDescription className="text-slate-500">
-            Sigue los indicadores clave del día para tomar decisiones rápidas.
-          </CardDescription>
-        </div>
-        <div className="rounded-full bg-slate-900 p-3 text-white shadow-lg">
-          <LightningIcon className="h-6 w-6" />
-        </div>
-      </CardHeader>
-      <CardContent className="relative z-10 flex-1">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="rounded-full bg-slate-900/10 p-2 text-slate-900">
-            {slides[activeIndex]?.icon}
-          </div>
-          <div>
-            <p className="text-sm font-medium text-slate-900">{slides[activeIndex]?.title}</p>
-            <p className="text-xs text-slate-500">{slides[activeIndex]?.description}</p>
-          </div>
-        </div>
-        <div className="relative h-64 overflow-hidden">
-          <div
-            className="absolute inset-0 flex h-[calc(16rem*2)] flex-col transition-transform duration-500"
-            style={{ transform: `translateY(-${activeIndex * 16}rem)` }}
-            aria-live="polite"
-          >
-            {slides.map((slide) => (
-              <div key={slide.id} className="h-64 space-y-6 pb-4 pr-1">
-                {slide.content}
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="mt-6 flex items-center justify-center gap-2">
-          {slides.map((slide, index) => (
-            <button
-              key={slide.id}
-              type="button"
-              onClick={() => setActiveIndex(index)}
-              className={
-                "h-2 w-6 rounded-full transition-colors duration-200 " +
-                (index === activeIndex ? "bg-slate-900" : "bg-slate-200 hover:bg-slate-300")
-              }
-              aria-label={`Ver ${slide.title}`}
-            />
-          ))}
         </div>
       </CardContent>
     </Card>

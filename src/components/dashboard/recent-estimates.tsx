@@ -1,98 +1,98 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { Estimate } from '@/lib/types';
-import { formatCurrency } from '@/lib/utils';
-import { format, formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-
-function getStatusVariant(status: Estimate['status']) {
-  switch (status) {
-    case 'Aprobado':
-      return 'secondary';
-    case 'Enviado':
-      return 'default';
-    case 'Borrador':
-    default:
-      return 'outline';
-  }
-}
+import { formatCurrency } from '@/lib/utils';
 
 function calculateTotal(estimate: Estimate): number {
-    const subtotal = estimate.lineItems.reduce((acc, item) => acc + item.quantity * item.price, 0);
-    const taxAmount = subtotal * (estimate.taxRate / 100);
-    return subtotal + taxAmount;
+  const subtotal = estimate.lineItems.reduce((acc, item) => acc + item.quantity * item.price, 0);
+  const taxAmount = subtotal * (estimate.taxRate / 100);
+  return subtotal + taxAmount;
 }
 
+const STATUS_STYLES: Record<Estimate['status'], { label: string; className: string }> = {
+  Aprobado: { label: 'Aprobado', className: 'bg-emerald-100 text-emerald-700' },
+  Enviado: { label: 'Pendiente', className: 'bg-amber-100 text-amber-700' },
+  Borrador: { label: 'Borrador', className: 'bg-slate-100 text-slate-600' },
+};
 
-export async function RecentEstimates({ estimates }: { estimates: Estimate[] }) {
-  const groupedByDay = estimates.reduce<Record<string, Estimate[]>>((acc, estimate) => {
-    const key = format(new Date(estimate.createdAt), 'PPP', { locale: es });
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(estimate);
-    return acc;
-  }, {});
+export function RecentEstimates({ estimates }: { estimates: Estimate[] }) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const orderedDays = Object.keys(groupedByDay);
+  const todaysEstimates = estimates
+    .filter((estimate) => {
+      const estimateDate = new Date(estimate.createdAt);
+      estimateDate.setHours(0, 0, 0, 0);
+      return estimateDate.getTime() === today.getTime();
+    })
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   return (
-    <Card className="rounded-3xl border border-slate-200/60 bg-white shadow-xl">
+    <Card className="rounded-3xl border border-slate-200 bg-white shadow-sm">
       <CardHeader className="flex flex-col gap-2 pb-4">
-        <CardTitle className="text-xl font-semibold text-slate-900">Historial diario de presupuestos</CardTitle>
+        <CardTitle className="text-xl font-semibold text-slate-900">Detalle de presupuestos del día</CardTitle>
         <CardDescription className="text-slate-500">
-          Revisa cómo avanzan tus presupuestos generados recientemente.
+          Lista de presupuestos emitidos hoy con sus estados y montos estimados.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {orderedDays.length === 0 && (
-          <div className="flex h-32 flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 text-center text-sm text-slate-500">
-            No se encontraron presupuestos. ¡Crea uno para empezar!
+      <CardContent>
+        {todaysEstimates.length === 0 ? (
+          <div className="flex h-40 flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-sm text-slate-500">
+            No hay presupuestos registrados para hoy.
           </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-slate-50">
+                <TableHead className="w-[30%] text-slate-500">Cliente</TableHead>
+                <TableHead className="w-[20%] text-slate-500">Fecha</TableHead>
+                <TableHead className="w-[20%] text-slate-500">Estado</TableHead>
+                <TableHead className="text-right text-slate-500">Monto</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {todaysEstimates.map((estimate) => {
+                const status = STATUS_STYLES[estimate.status];
+                const total = calculateTotal(estimate);
+
+                return (
+                  <TableRow key={estimate.id} className="border-b border-slate-100">
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-600">
+                          {estimate.pet.name[0]?.toUpperCase() ?? 'P'}
+                        </div>
+                        <div className="space-y-1">
+                          <Link
+                            href={`/estimates/${estimate.id}`}
+                            className="text-sm font-semibold text-slate-900 hover:underline"
+                          >
+                            {estimate.owner.name}
+                          </Link>
+                          <p className="text-xs text-slate-500">{estimate.pet.name}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-slate-600">
+                      {format(new Date(estimate.createdAt), 'dd/MM/yyyy', { locale: es })}
+                    </TableCell>
+                    <TableCell>
+                      <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${status.className}`}>
+                        {status.label}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right text-sm font-semibold text-slate-900">
+                      {formatCurrency(total)}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
         )}
-        {orderedDays.map((day) => (
-          <div key={day} className="space-y-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">{day}</p>
-              <span className="text-xs text-slate-400">
-                {groupedByDay[day].length} {groupedByDay[day].length === 1 ? 'registro' : 'registros'}
-              </span>
-            </div>
-            <div className="space-y-3">
-              {groupedByDay[day].map((estimate) => (
-                <div
-                  key={estimate.id}
-                  className="flex flex-col gap-3 rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4 transition hover:border-slate-300 hover:bg-slate-50"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-900/10 text-sm font-semibold text-slate-900">
-                        {estimate.pet.name[0]?.toUpperCase() ?? 'P'}
-                      </div>
-                      <div>
-                        <Link
-                          href={`/estimates/${estimate.id}`}
-                          className="text-base font-semibold text-slate-900 hover:underline"
-                        >
-                          {estimate.pet.name}
-                        </Link>
-                        <p className="text-xs text-slate-500">
-                          ID {estimate.id} · {formatDistanceToNow(new Date(estimate.createdAt), { addSuffix: true, locale: es })}
-                        </p>
-                      </div>
-                    </div>
-                    <Badge variant={getStatusVariant(estimate.status)} className="rounded-full px-3 py-1 text-xs">
-                      {estimate.status}
-                    </Badge>
-                  </div>
-                  <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600">
-                    <span>{estimate.owner.name}</span>
-                    <span className="font-semibold text-slate-900">{formatCurrency(calculateTotal(estimate))}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
       </CardContent>
     </Card>
   );
