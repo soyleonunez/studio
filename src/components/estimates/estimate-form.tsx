@@ -37,6 +37,7 @@ const estimateSchema = z.object({
   id: z.string(),
   owner: z.object({
     name: z.string().min(1, "El nombre del dueño es requerido."),
+    cedula: z.string().min(1, "La cédula del dueño es requerida."),
     address: z.string().min(1, "La dirección del dueño es requerida."),
     email: z.string().email("Dirección de correo inválida."),
     phone: z.string().min(1, "El teléfono del dueño es requerido."),
@@ -62,7 +63,7 @@ export function EstimateForm({ estimate }: { estimate?: Estimate }) {
         resolver: zodResolver(estimateSchema),
         defaultValues: estimate || {
             id: 'new',
-            owner: { name: '', address: '', email: '', phone: '' },
+            owner: { name: '', cedula: '', address: '', email: '', phone: '' },
             pet: { name: '', breed: '', age: '', gender: 'Desconocido' },
             lineItems: [{ id: '1', service: '', description: '', quantity: 1, price: 0 }],
             taxRate: 0,
@@ -106,6 +107,9 @@ export function EstimateForm({ estimate }: { estimate?: Estimate }) {
                                     <h3 className="font-semibold">Detalles del Dueño</h3>
                                     <FormField control={form.control} name="owner.name" render={({ field }) => (
                                         <FormItem><FormLabel>Nombre</FormLabel><FormControl><Input {...field} placeholder="John Doe" /></FormControl><FormMessage /></FormItem>
+                                    )}/>
+                                     <FormField control={form.control} name="owner.cedula" render={({ field }) => (
+                                        <FormItem><FormLabel>Cédula</FormLabel><FormControl><Input {...field} placeholder="V-12345678" /></FormControl><FormMessage /></FormItem>
                                     )}/>
                                     <FormField control={form.control} name="owner.address" render={({ field }) => (
                                         <FormItem><FormLabel>Dirección</FormLabel><FormControl><Input {...field} placeholder="123 Calle Principal" /></FormControl><FormMessage /></FormItem>

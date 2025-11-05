@@ -66,7 +66,7 @@ export function EstimatePreview({ estimate, company }: { estimate: Estimate, com
                         </div>
                     </div>
                     <div className="text-right">
-                        <h3 className="text-2xl font-semibold uppercase text-gray-800">Presupuesto</h3>
+                        <h3 className="text-2xl font-semibold uppercase text-gray-800">Presupuesto Veterinario</h3>
                         <p className="text-sm text-gray-500">#{estimate.id}</p>
                         <p className="text-sm text-gray-500">Fecha: {new Date(estimate.createdAt).toLocaleDateString('es-ES')}</p>
                     </div>
@@ -76,6 +76,7 @@ export function EstimatePreview({ estimate, company }: { estimate: Estimate, com
                     <div>
                         <h4 className="font-semibold text-gray-600 mb-2">Cliente</h4>
                         <p className="font-bold text-gray-800">{estimate.owner.name}</p>
+                        <p className="text-sm text-gray-500">Cédula: {estimate.owner.cedula}</p>
                         <p className="text-sm text-gray-500">{estimate.owner.address}</p>
                         <p className="text-sm text-gray-500">{estimate.owner.email}</p>
                         <p className="text-sm text-gray-500">{estimate.owner.phone}</p>

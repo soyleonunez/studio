@@ -11,6 +11,7 @@ export type Company = {
 
 export type Owner = {
   name: string;
+  cedula: string;
   address: string;
   email: string;
   phone: string;

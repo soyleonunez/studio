@@ -25,8 +25,11 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
-        <h1 className="text-3xl font-bold tracking-tight">Panel de Control</h1>
+    <div className="space-y-8">
+        <div className='space-y-2'>
+            <h1 className="text-3xl font-bold tracking-tight">Panel de Control</h1>
+            <p className="text-muted-foreground">Aquí tienes un resumen de tu actividad reciente y acciones rápidas.</p>
+        </div>
         <DashboardActions />
         <RecentEstimates estimates={estimates.slice(0, 5)} />
     </div>
