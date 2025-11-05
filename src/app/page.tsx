@@ -5,6 +5,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { TemporaryEstimateCard } from '@/components/dashboard/temporary-estimate-card';
 
 export default async function DashboardPage() {
   const [estimates, company] = await Promise.all([getEstimates(), getCompany()]);
@@ -31,6 +32,9 @@ export default async function DashboardPage() {
             <p className="text-muted-foreground">Aquí tienes un resumen de tu actividad reciente y acciones rápidas.</p>
         </div>
         <DashboardActions />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <TemporaryEstimateCard company={company} className="lg:col-span-2" />
+        </div>
         <RecentEstimates estimates={estimates.slice(0, 5)} />
     </div>
   );
