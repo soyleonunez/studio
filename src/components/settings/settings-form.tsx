@@ -21,7 +21,6 @@ import { updateCompanyAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { useTransition, useState, useCallback } from 'react';
 import { Loader2, UploadCloud } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useDropzone } from 'react-dropzone';
 
 const companySchema = z.object({
@@ -36,7 +35,6 @@ const companySchema = z.object({
 
 export function SettingsForm({ company }: { company: Company }) {
   const { toast } = useToast();
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [logoPreview, setLogoPreview] = useState<string | null>(company.logoUrl);
 
@@ -80,7 +78,6 @@ export function SettingsForm({ company }: { company: Company }) {
                 title: '¡Éxito!',
                 description: result.message,
             });
-            router.refresh();
         } else {
             toast({
                 title: 'Error',

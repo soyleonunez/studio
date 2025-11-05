@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { saveEstimate as dbSaveEstimate, updateCompany as dbUpdateCompany } from '@/lib/data';
+import { saveEstimate as dbSaveEstimate, updateCompany as dbUpdateCompany, getCompany } from '@/lib/data';
 import type { Company, Estimate } from '@/lib/types';
 
 const companySchema = z.object({
@@ -30,9 +30,16 @@ export async function updateCompanyAction(
   }
 
   try {
+    const wasCompanyDataMissing = !(await getCompany())?.name;
+    
     await dbUpdateCompany(validatedFields.data as Company);
-    revalidatePath('/settings');
-    revalidatePath('/estimates', 'layout');
+
+    revalidatePath('/', 'layout');
+
+    if (wasCompanyDataMissing) {
+      redirect('/');
+    }
+
     return { success: true, message: 'La configuración de la empresa se ha actualizado correctamente.' };
   } catch (e) {
     return { success: false, message: 'No se pudo actualizar la configuración.' };
