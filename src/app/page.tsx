@@ -1,11 +1,13 @@
-import { RecentEstimates } from '@/components/dashboard/recent-estimates';
+import {
+  DailyAdminMetricsCard,
+  QuickActions,
+  RecentEstimates,
+  TemporaryEstimateCard,
+} from '@/components/dashboard';
 import { getEstimates, getCompany } from '@/lib/data';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { TemporaryEstimateCard } from '@/components/dashboard/temporary-estimate-card';
-import { DailyAdminMetricsCard } from '@/components/dashboard/daily-admin-metrics-card';
-import { QuickActions } from '@/components/dashboard/quick-actions';
 
 export default async function DashboardPage() {
   const [estimates, company] = await Promise.all([getEstimates(), getCompany()]);
