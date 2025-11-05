@@ -18,14 +18,15 @@ import { Badge } from '@/components/ui/badge';
 import type { Estimate } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 function getStatusVariant(status: Estimate['status']) {
   switch (status) {
-    case 'Approved':
+    case 'Aprobado':
       return 'secondary';
-    case 'Sent':
+    case 'Enviado':
       return 'default';
-    case 'Draft':
+    case 'Borrador':
     default:
       return 'outline';
   }
@@ -42,17 +43,17 @@ export async function RecentEstimates({ estimates }: { estimates: Estimate[] }) 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent Estimates</CardTitle>
-        <CardDescription>A list of your most recent estimates.</CardDescription>
+        <CardTitle>Presupuestos Recientes</CardTitle>
+        <CardDescription>Una lista de tus presupuestos más recientes.</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Estimate ID</TableHead>
-              <TableHead>Pet Name</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Date</TableHead>
+              <TableHead>ID Presupuesto</TableHead>
+              <TableHead>Nombre de Mascota</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead>Fecha</TableHead>
               <TableHead className="text-right">Total</TableHead>
             </TableRow>
           </TableHeader>
@@ -71,7 +72,7 @@ export async function RecentEstimates({ estimates }: { estimates: Estimate[] }) 
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  {formatDistanceToNow(new Date(estimate.createdAt), { addSuffix: true })}
+                  {formatDistanceToNow(new Date(estimate.createdAt), { addSuffix: true, locale: es })}
                 </TableCell>
                 <TableCell className="text-right">{formatCurrency(calculateTotal(estimate))}</TableCell>
               </TableRow>
@@ -79,7 +80,7 @@ export async function RecentEstimates({ estimates }: { estimates: Estimate[] }) 
              {estimates.length === 0 && (
                 <TableRow>
                     <TableCell colSpan={5} className="text-center h-24">
-                        No estimates found. Create one to get started!
+                        No se encontraron presupuestos. ¡Crea uno para empezar!
                     </TableCell>
                 </TableRow>
             )}

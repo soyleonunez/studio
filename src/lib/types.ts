@@ -20,7 +20,7 @@ export type Pet = {
   name:string;
   breed: string;
   age: string;
-  gender: 'Male' | 'Female' | 'Unknown';
+  gender: 'Macho' | 'Hembra' | 'Desconocido';
 };
 
 export type LineItem = {
@@ -38,5 +38,5 @@ export type Estimate = {
   lineItems: LineItem[];
   taxRate: number;
   createdAt: string;
-  status: 'Draft' | 'Sent' | 'Approved';
+  status: 'Borrador' | 'Enviado' | 'Aprobado';
 };

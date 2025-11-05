@@ -7,7 +7,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Panel de Control</h1>
         <DashboardActions />
         <RecentEstimates estimates={estimates.slice(0, 5)} />
     </div>

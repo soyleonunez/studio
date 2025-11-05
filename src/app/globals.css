@@ -60,17 +60,10 @@
   }
 }
 
-@layer utilities {
-  .print-ticket {
-    width: 8.5in;
-    height: 3.66in;
-    box-shadow: none;
-    border-radius: 0;
-    border: none;
-  }
-}
-
 @media print {
+  body, html {
+    background: #fff;
+  }
   body * {
     visibility: hidden;
   }
@@ -85,9 +78,11 @@
     height: 100%;
     padding: 0;
     margin: 0;
+    border: none;
+    box-shadow: none;
   }
   @page {
-    size: letter landscape;
-    margin: 0;
+    size: auto;
+    margin: 0mm;
   }
 }

@@ -19,7 +19,7 @@ export default async function EstimatePage({ params }: { params: { id: string } 
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Error</AlertTitle>
-                <AlertDescription>Company configuration not found. Please set up your company in the settings page.</AlertDescription>
+                <AlertDescription>No se encontró la configuración de la empresa. Por favor, configure su empresa en la página de configuración.</AlertDescription>
             </Alert>
          )
     }

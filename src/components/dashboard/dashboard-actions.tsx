@@ -8,7 +8,7 @@ export function DashboardActions() {
       <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
         <Link href="/estimates/new">
           <PlusCircle className="mr-2 h-5 w-5" />
-          Create New Estimate
+          Crear Nuevo Presupuesto
         </Link>
       </Button>
     </div>

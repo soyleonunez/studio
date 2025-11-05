@@ -19,25 +19,25 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import type { Company } from '@/lib/types';
 import { updateCompanyAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
-import { useEffect, useTransition } from 'react';
+import { useTransition, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-
 const companySchema = z.object({
-  name: z.string().min(1, 'Company name is required.'),
-  address: z.string().min(1, 'Address is required.'),
-  contactInfo: z.string().min(1, 'Contact info is required.'),
-  taxId: z.string().min(1, 'Tax ID is required.'),
-  logoUrl: z.string().url('Must be a valid URL.'),
-  disclaimer: z.string().min(1, 'Disclaimer is required.'),
-  accentColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Must be a valid hex color code.'),
+  name: z.string().min(1, 'El nombre de la empresa es requerido.'),
+  address: z.string().min(1, 'La dirección es requerida.'),
+  contactInfo: z.string().min(1, 'La información de contacto es requerida.'),
+  taxId: z.string().min(1, 'El NIF/CIF es requerido.'),
+  logoUrl: z.string().optional(),
+  disclaimer: z.string().min(1, 'El texto de descargo de responsabilidad es requerido.'),
+  accentColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Debe ser un código de color hexadecimal válido.'),
 });
 
 export function SettingsForm({ company }: { company: Company }) {
   const { toast } = useToast();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [logoPreview, setLogoPreview] = useState<string | null>(company.logoUrl);
 
   const form = useForm<z.infer<typeof companySchema>>({
     resolver: zodResolver(companySchema),
@@ -48,28 +48,36 @@ export function SettingsForm({ company }: { company: Company }) {
       taxId: company.taxId || '',
       logoUrl: company.logoUrl || '',
       disclaimer: company.disclaimer || '',
-      accentColor: company.accentColor || '#ff8c00',
+      accentColor: company.accentColor || '#4f46e5',
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof companySchema>) => {
-    const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-        formData.append(key, value);
-    });
+  const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setLogoPreview(result);
+        form.setValue('logoUrl', result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
+  const onSubmit = async (data: z.infer<typeof companySchema>) => {
     startTransition(async () => {
-        const result = await updateCompanyAction(null, formData);
-        if (result?.message.includes('success')) {
+        const result = await updateCompanyAction(data);
+        if (result.success) {
             toast({
-                title: 'Success!',
+                title: '¡Éxito!',
                 description: result.message,
             });
             router.refresh();
         } else {
             toast({
                 title: 'Error',
-                description: result?.message || 'Something went wrong.',
+                description: result.message || 'Algo salió mal.',
                 variant: 'destructive',
             });
         }
@@ -81,8 +89,8 @@ export function SettingsForm({ company }: { company: Company }) {
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <Card>
           <CardHeader>
-            <CardTitle>Company Settings</CardTitle>
-            <CardDescription>Update your company's information. This will be used on all estimates.</CardDescription>
+            <CardTitle>Configuración de la Empresa</CardTitle>
+            <CardDescription>Actualice la información de su empresa. Se utilizará en todos los presupuestos.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-6 md:grid-cols-2">
             <FormField
@@ -90,35 +98,9 @@ export function SettingsForm({ company }: { company: Company }) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Company Name</FormLabel>
+                  <FormLabel>Nombre de la Empresa</FormLabel>
                   <FormControl>
-                    <Input placeholder="PetPal Veterinary" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Address</FormLabel>
-                  <FormControl>
-                    <Input placeholder="123 Animal Lane, Pet City" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="contactInfo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contact Information</FormLabel>
-                  <FormControl>
-                    <Input placeholder="contact@petpal.vet | 555-123-4567" {...field} />
+                    <Input placeholder="Mi Veterinaria" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -129,9 +111,9 @@ export function SettingsForm({ company }: { company: Company }) {
               name="taxId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tax ID</FormLabel>
+                  <FormLabel>NIF/CIF</FormLabel>
                   <FormControl>
-                    <Input placeholder="12-3456789" {...field} />
+                    <Input placeholder="B12345678" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -139,23 +121,36 @@ export function SettingsForm({ company }: { company: Company }) {
             />
             <FormField
               control={form.control}
-              name="logoUrl"
+              name="address"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Logo URL</FormLabel>
+                <FormItem className="md:col-span-2">
+                  <FormLabel>Dirección</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://your-domain.com/logo.png" {...field} />
+                    <Input placeholder="Calle Falsa 123, 28001 Madrid" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
+              control={form.control}
+              name="contactInfo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Información de Contacto</FormLabel>
+                  <FormControl>
+                    <Input placeholder="info@miveterinaria.com | 912 345 678" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
               control={form.control}
               name="accentColor"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Accent Color</FormLabel>
+                  <FormLabel>Color de Acento</FormLabel>
                   <FormControl>
                     <div className="flex items-center gap-2">
                       <Input type="color" className="w-12 h-10 p-1" {...field} />
@@ -166,6 +161,14 @@ export function SettingsForm({ company }: { company: Company }) {
                 </FormItem>
               )}
             />
+             <div className="md:col-span-2">
+              <FormLabel>Logotipo de la Empresa</FormLabel>
+              <div className="flex items-center gap-4 mt-2">
+                {logoPreview && <img src={logoPreview} alt="Vista previa del logo" className="h-16 w-16 rounded-lg object-contain border p-1" />}
+                <Input id="logoUpload" type="file" accept="image/png, image/jpeg" onChange={handleLogoChange} className="flex-1" />
+              </div>
+              <FormDescription className="mt-2">Sube el logotipo de tu empresa (se recomienda formato PNG o JPG).</FormDescription>
+            </div>
             <div className="md:col-span-2">
               <FormField
                 control={form.control}
@@ -173,12 +176,12 @@ export function SettingsForm({ company }: { company: Company }) {
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center justify-between">
-                        <FormLabel>Disclaimer Text</FormLabel>
+                        <FormLabel>Texto de descargo de responsabilidad</FormLabel>
                     </div>
                     <FormControl>
-                      <Textarea rows={5} placeholder="This estimate is valid for 30 days..." {...field} />
+                      <Textarea rows={4} placeholder="Este presupuesto tiene una validez de 30 días..." {...field} />
                     </FormControl>
-                    <FormDescription>This text will appear at the bottom of every estimate.</FormDescription>
+                    <FormDescription>Este texto aparecerá al final de cada presupuesto.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -188,7 +191,7 @@ export function SettingsForm({ company }: { company: Company }) {
           <CardFooter className="border-t px-6 py-4">
              <Button type="submit" disabled={isPending}>
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Settings
+                Guardar Cambios
              </Button>
           </CardFooter>
         </Card>

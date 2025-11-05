@@ -27,29 +27,29 @@ import { useToast } from '@/hooks/use-toast';
 
 const lineItemSchema = z.object({
     id: z.string(),
-    service: z.string().min(1, "Service name is required."),
-    description: z.string().min(1, "Description is required."),
-    quantity: z.coerce.number().min(0.01, "Quantity must be greater than 0."),
-    price: z.coerce.number().min(0, "Price cannot be negative."),
+    service: z.string().min(1, "El nombre del servicio es requerido."),
+    description: z.string().min(1, "La descripción es requerida."),
+    quantity: z.coerce.number().min(0.01, "La cantidad debe ser mayor que 0."),
+    price: z.coerce.number().min(0, "El precio no puede ser negativo."),
 });
 
 const estimateSchema = z.object({
   id: z.string(),
   owner: z.object({
-    name: z.string().min(1, "Owner name is required."),
-    address: z.string().min(1, "Owner address is required."),
-    email: z.string().email("Invalid email address."),
-    phone: z.string().min(1, "Owner phone is required."),
+    name: z.string().min(1, "El nombre del dueño es requerido."),
+    address: z.string().min(1, "La dirección del dueño es requerida."),
+    email: z.string().email("Dirección de correo inválida."),
+    phone: z.string().min(1, "El teléfono del dueño es requerido."),
   }),
   pet: z.object({
-    name: z.string().min(1, "Pet name is required."),
-    breed: z.string().min(1, "Pet breed is required."),
-    age: z.string().min(1, "Pet age is required."),
-    gender: z.enum(['Male', 'Female', 'Unknown']),
+    name: z.string().min(1, "El nombre de la mascota es requerido."),
+    breed: z.string().min(1, "La raza de la mascota es requerida."),
+    age: z.string().min(1, "La edad de la mascota es requerida."),
+    gender: z.enum(['Macho', 'Hembra', 'Desconocido']),
   }),
-  lineItems: z.array(lineItemSchema).min(1, "At least one line item is required."),
-  taxRate: z.coerce.number().min(0, "Tax rate cannot be negative.").default(0),
-  status: z.enum(['Draft', 'Sent', 'Approved']),
+  lineItems: z.array(lineItemSchema).min(1, "Se requiere al menos un concepto."),
+  taxRate: z.coerce.number().min(0, "La tasa de impuesto no puede ser negativa.").default(0),
+  status: z.enum(['Borrador', 'Enviado', 'Aprobado']),
 });
 
 type EstimateFormData = z.infer<typeof estimateSchema>;
@@ -63,10 +63,10 @@ export function EstimateForm({ estimate }: { estimate?: Estimate }) {
         defaultValues: estimate || {
             id: 'new',
             owner: { name: '', address: '', email: '', phone: '' },
-            pet: { name: '', breed: '', age: '', gender: 'Unknown' },
+            pet: { name: '', breed: '', age: '', gender: 'Desconocido' },
             lineItems: [{ id: '1', service: '', description: '', quantity: 1, price: 0 }],
             taxRate: 0,
-            status: 'Draft',
+            status: 'Borrador',
         },
     });
 
@@ -86,8 +86,8 @@ export function EstimateForm({ estimate }: { estimate?: Estimate }) {
         startSavingTransition(async () => {
             await saveEstimateAction(data as Estimate);
             toast({
-                title: 'Estimate Saved!',
-                description: `Estimate ${estimate ? estimate.id : 'new'} has been saved successfully.`
+                title: '¡Presupuesto Guardado!',
+                description: `El presupuesto ${estimate ? estimate.id : 'nuevo'} ha sido guardado exitosamente.`
             });
         });
     };
@@ -99,40 +99,40 @@ export function EstimateForm({ estimate }: { estimate?: Estimate }) {
                     <div className="lg:col-span-2 space-y-8">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Client & Pet Information</CardTitle>
+                                <CardTitle>Información del Cliente y Mascota</CardTitle>
                             </CardHeader>
                             <CardContent className="grid gap-6 md:grid-cols-2">
                                 <div className="space-y-4">
-                                    <h3 className="font-semibold">Owner Details</h3>
+                                    <h3 className="font-semibold">Detalles del Dueño</h3>
                                     <FormField control={form.control} name="owner.name" render={({ field }) => (
-                                        <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} placeholder="John Doe" /></FormControl><FormMessage /></FormItem>
+                                        <FormItem><FormLabel>Nombre</FormLabel><FormControl><Input {...field} placeholder="John Doe" /></FormControl><FormMessage /></FormItem>
                                     )}/>
                                     <FormField control={form.control} name="owner.address" render={({ field }) => (
-                                        <FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} placeholder="123 Main St" /></FormControl><FormMessage /></FormItem>
+                                        <FormItem><FormLabel>Dirección</FormLabel><FormControl><Input {...field} placeholder="123 Calle Principal" /></FormControl><FormMessage /></FormItem>
                                     )}/>
                                     <FormField control={form.control} name="owner.email" render={({ field }) => (
                                         <FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} type="email" placeholder="john@example.com"/></FormControl><FormMessage /></FormItem>
                                     )}/>
                                     <FormField control={form.control} name="owner.phone" render={({ field }) => (
-                                        <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} placeholder="555-123-4567" /></FormControl><FormMessage /></FormItem>
+                                        <FormItem><FormLabel>Teléfono</FormLabel><FormControl><Input {...field} placeholder="555-123-4567" /></FormControl><FormMessage /></FormItem>
                                     )}/>
                                 </div>
                                 <div className="space-y-4">
-                                    <h3 className="font-semibold">Pet Details</h3>
+                                    <h3 className="font-semibold">Detalles de la Mascota</h3>
                                     <FormField control={form.control} name="pet.name" render={({ field }) => (
-                                        <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} placeholder="Buddy" /></FormControl><FormMessage /></FormItem>
+                                        <FormItem><FormLabel>Nombre</FormLabel><FormControl><Input {...field} placeholder="Buddy" /></FormControl><FormMessage /></FormItem>
                                     )}/>
                                     <FormField control={form.control} name="pet.breed" render={({ field }) => (
-                                        <FormItem><FormLabel>Breed</FormLabel><FormControl><Input {...field} placeholder="Golden Retriever" /></FormControl><FormMessage /></FormItem>
+                                        <FormItem><FormLabel>Raza</FormLabel><FormControl><Input {...field} placeholder="Golden Retriever" /></FormControl><FormMessage /></FormItem>
                                     )}/>
                                     <FormField control={form.control} name="pet.age" render={({ field }) => (
-                                        <FormItem><FormLabel>Age</FormLabel><FormControl><Input {...field} placeholder="5 years" /></FormControl><FormMessage /></FormItem>
+                                        <FormItem><FormLabel>Edad</FormLabel><FormControl><Input {...field} placeholder="5 años" /></FormControl><FormMessage /></FormItem>
                                     )}/>
                                     <FormField control={form.control} name="pet.gender" render={({ field }) => (
-                                        <FormItem><FormLabel>Gender</FormLabel>
+                                        <FormItem><FormLabel>Género</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl><SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger></FormControl>
-                                            <SelectContent><SelectItem value="Male">Male</SelectItem><SelectItem value="Female">Female</SelectItem><SelectItem value="Unknown">Unknown</SelectItem></SelectContent>
+                                            <FormControl><SelectTrigger><SelectValue placeholder="Seleccionar género" /></SelectTrigger></FormControl>
+                                            <SelectContent><SelectItem value="Macho">Macho</SelectItem><SelectItem value="Hembra">Hembra</SelectItem><SelectItem value="Desconocido">Desconocido</SelectItem></SelectContent>
                                         </Select><FormMessage /></FormItem>
                                     )}/>
                                 </div>
@@ -141,31 +141,31 @@ export function EstimateForm({ estimate }: { estimate?: Estimate }) {
 
                         <Card>
                             <CardHeader>
-                                <CardTitle>Services & Products</CardTitle>
+                                <CardTitle>Servicios y Productos</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-6">
                                 {fields.map((field, index) => (
                                     <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
-                                        <div className="grid gap-4 md:grid-cols-5">
+                                        <div className="grid gap-4 md:grid-cols-5 items-end">
                                             <FormField control={form.control} name={`lineItems.${index}.service`} render={({ field }) => (
-                                                <FormItem className="md:col-span-2"><FormLabel>Service/Product</FormLabel><FormControl><Input {...field} placeholder="Annual Wellness Exam"/></FormControl><FormMessage /></FormItem>
+                                                <FormItem className="md:col-span-2"><FormLabel>Servicio/Producto</FormLabel><FormControl><Input {...field} placeholder="Examen de Bienestar Anual"/></FormControl><FormMessage /></FormItem>
                                             )}/>
                                             <FormField control={form.control} name={`lineItems.${index}.quantity`} render={({ field }) => (
-                                                <FormItem><FormLabel>Qty</FormLabel><FormControl><Input {...field} type="number" step="1" /></FormControl><FormMessage /></FormItem>
+                                                <FormItem><FormLabel>Cant.</FormLabel><FormControl><Input {...field} type="number" step="1" /></FormControl><FormMessage /></FormItem>
                                             )}/>
                                             <FormField control={form.control} name={`lineItems.${index}.price`} render={({ field }) => (
-                                                <FormItem><FormLabel>Unit Price</FormLabel><FormControl><Input {...field} type="number" step="0.01" /></FormControl><FormMessage /></FormItem>
+                                                <FormItem><FormLabel>Precio Unit.</FormLabel><FormControl><Input {...field} type="number" step="0.01" /></FormControl><FormMessage /></FormItem>
                                             )}/>
-                                            <div className="flex items-end">
+                                            <div className="flex items-center justify-end h-10">
                                                 <p className="font-medium text-right w-full">{formatCurrency((lineItems[index]?.quantity || 0) * (lineItems[index]?.price || 0))}</p>
                                             </div>
                                         </div>
                                         <div className="space-y-2">
                                             <div className="flex items-center justify-between">
-                                                <FormLabel>Description</FormLabel>
+                                                <FormLabel>Descripción</FormLabel>
                                             </div>
                                             <FormField control={form.control} name={`lineItems.${index}.description`} render={({ field }) => (
-                                                <FormItem className="!mt-0"><FormControl><Textarea {...field} placeholder="Detailed description of the service..."/></FormControl><FormMessage /></FormItem>
+                                                <FormItem className="!mt-0"><FormControl><Textarea {...field} placeholder="Descripción detallada del servicio..."/></FormControl><FormMessage /></FormItem>
                                             )}/>
                                         </div>
                                         {fields.length > 1 && (
@@ -176,7 +176,7 @@ export function EstimateForm({ estimate }: { estimate?: Estimate }) {
                                     </div>
                                 ))}
                                  <Button type="button" variant="outline" onClick={() => append({ id: `${Date.now()}`, service: '', description: '', quantity: 1, price: 0 })}>
-                                    <PlusCircle className="mr-2 h-4 w-4" /> Add Line Item
+                                    <PlusCircle className="mr-2 h-4 w-4" /> Agregar Concepto
                                 </Button>
                             </CardContent>
                         </Card>
@@ -185,24 +185,24 @@ export function EstimateForm({ estimate }: { estimate?: Estimate }) {
                     <div className="lg:col-span-1 space-y-8">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Summary</CardTitle>
+                                <CardTitle>Resumen</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="flex justify-between"><span>Subtotal</span><span>{formatCurrency(subtotal)}</span></div>
                                 <div className="flex justify-between items-center">
-                                    <FormLabel>Tax Rate (%)</FormLabel>
+                                    <FormLabel>Impuesto (%)</FormLabel>
                                     <FormField control={form.control} name="taxRate" render={({ field }) => (
                                         <FormItem><FormControl><Input {...field} type="number" step="0.01" className="w-24 h-8 text-right" /></FormControl><FormMessage /></FormItem>
                                     )}/>
                                 </div>
-                                <div className="flex justify-between"><span>Tax</span><span>{formatCurrency(taxAmount)}</span></div>
+                                <div className="flex justify-between"><span>Impuesto</span><span>{formatCurrency(taxAmount)}</span></div>
                                 <Separator />
                                 <div className="flex justify-between font-bold text-lg"><span>Total</span><span>{formatCurrency(total)}</span></div>
                             </CardContent>
                             <CardFooter>
                                 <Button type="submit" className="w-full" disabled={isSaving}>
                                     {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Save className="mr-2 h-4 w-4" />}
-                                    Save Estimate
+                                    Guardar Presupuesto
                                 </Button>
                             </CardFooter>
                         </Card>
