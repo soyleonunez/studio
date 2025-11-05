@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormState, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -19,8 +19,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import type { Company } from '@/lib/types';
 import { updateCompanyAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useTransition } from 'react';
 import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+
 
 const companySchema = z.object({
   name: z.string().min(1, 'Company name is required.'),
@@ -34,6 +36,8 @@ const companySchema = z.object({
 
 export function SettingsForm({ company }: { company: Company }) {
   const { toast } = useToast();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof companySchema>>({
     resolver: zodResolver(companySchema),
@@ -48,26 +52,33 @@ export function SettingsForm({ company }: { company: Company }) {
     },
   });
 
-  const [state, formAction] = useFormState(updateCompanyAction, { message: '', errors: {} });
+  const onSubmit = async (data: z.infer<typeof companySchema>) => {
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+        formData.append(key, value);
+    });
 
-  useEffect(() => {
-    if(state.message && state.message.includes('success')) {
-        toast({
-            title: 'Success!',
-            description: state.message,
-        });
-    } else if (state.message) {
-        toast({
-            title: 'Error',
-            description: state.message,
-            variant: 'destructive',
-        });
-    }
-  }, [state, toast]);
+    startTransition(async () => {
+        const result = await updateCompanyAction(null, formData);
+        if (result?.message.includes('success')) {
+            toast({
+                title: 'Success!',
+                description: result.message,
+            });
+            router.refresh();
+        } else {
+            toast({
+                title: 'Error',
+                description: result?.message || 'Something went wrong.',
+                variant: 'destructive',
+            });
+        }
+    });
+  };
 
   return (
     <Form {...form}>
-      <form action={formAction}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
         <Card>
           <CardHeader>
             <CardTitle>Company Settings</CardTitle>
@@ -175,8 +186,8 @@ export function SettingsForm({ company }: { company: Company }) {
             </div>
           </CardContent>
           <CardFooter className="border-t px-6 py-4">
-             <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+             <Button type="submit" disabled={isPending}>
+                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Save Settings
              </Button>
           </CardFooter>
