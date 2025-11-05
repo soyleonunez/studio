@@ -23,7 +23,9 @@ export function AppSidebar() {
       <SidebarHeader>
         <div className="flex items-center justify-between">
             <Logo />
-            <SidebarTrigger className="hidden sm:flex"/>
+            <div className="rounded-full h-8 w-8 flex items-center justify-center bg-background border">
+                <SidebarTrigger className="hidden sm:flex" />
+            </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -32,11 +34,11 @@ export function AppSidebar() {
             <SidebarMenuButton
               asChild
               isActive={pathname === '/'}
-              tooltip={{ children: 'Dashboard' }}
+              tooltip={{ children: 'Panel de Control' }}
             >
               <Link href="/">
                 <LayoutDashboard />
-                <span>Dashboard</span>
+                <span className="group-data-[state=collapsed]/sidebar-wrapper:hidden">Panel de Control</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -48,7 +50,7 @@ export function AppSidebar() {
             >
               <Link href="/settings">
                 <Settings />
-                <span>Configuración</span>
+                <span className="group-data-[state=collapsed]/sidebar-wrapper:hidden">Configuración</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -59,7 +61,7 @@ export function AppSidebar() {
             <SidebarMenuItem>
                 <SidebarMenuButton tooltip={{ children: 'Soporte' }}>
                     <LifeBuoy />
-                    <span>Soporte</span>
+                    <span className="group-data-[state=collapsed]/sidebar-wrapper:hidden">Soporte</span>
                 </SidebarMenuButton>
             </SidebarMenuItem>
          </SidebarMenu>
