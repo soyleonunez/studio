@@ -28,7 +28,7 @@ const companySchema = z.object({
   name: z.string().min(1, 'El nombre de la empresa es requerido.'),
   address: z.string().min(1, 'La dirección es requerida.'),
   contactInfo: z.string().min(1, 'La información de contacto es requerida.'),
-  taxId: z.string().min(1, 'El NIF/CIF es requerido.'),
+  taxId: z.string().min(1, 'El RIF es requerido.'),
   logoUrl: z.string().optional(),
   disclaimer: z.string().min(1, 'El texto de descargo de responsabilidad es requerido.'),
   accentColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Debe ser un código de color hexadecimal válido.'),
@@ -118,9 +118,9 @@ export function SettingsForm({ company }: { company: Company }) {
               name="taxId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>NIF/CIF</FormLabel>
+                  <FormLabel>RIF</FormLabel>
                   <FormControl>
-                    <Input placeholder="B12345678" {...field} />
+                    <Input placeholder="J-12345678-9" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -133,7 +133,7 @@ export function SettingsForm({ company }: { company: Company }) {
                 <FormItem className="md:col-span-2">
                   <FormLabel>Dirección</FormLabel>
                   <FormControl>
-                    <Input placeholder="Calle Falsa 123, 28001 Madrid" {...field} />
+                    <Input placeholder="Calle Falsa 123, Caracas" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -146,7 +146,7 @@ export function SettingsForm({ company }: { company: Company }) {
                 <FormItem>
                   <FormLabel>Información de Contacto</FormLabel>
                   <FormControl>
-                    <Input placeholder="info@miveterinaria.com | 912 345 678" {...field} />
+                    <Input placeholder="info@miveterinaria.com | 0212-1234567" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

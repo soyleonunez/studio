@@ -10,7 +10,7 @@ const companySchema = z.object({
   name: z.string().min(1, 'El nombre de la empresa es requerido.'),
   address: z.string().min(1, 'La dirección es requerida.'),
   contactInfo: z.string().min(1, 'La información de contacto es requerida.'),
-  taxId: z.string().min(1, 'El NIF/CIF es requerido.'),
+  taxId: z.string().min(1, 'El RIF es requerido.'),
   logoUrl: z.string().optional(),
   disclaimer: z.string().min(1, 'El texto de descargo de responsabilidad es requerido.'),
   accentColor: z.string().min(1, 'El color de acento es requerido.'),
